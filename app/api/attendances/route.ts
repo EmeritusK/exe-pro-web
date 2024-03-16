@@ -8,11 +8,11 @@ export async function GET(){
 
 export async function POST(request: Request){
   try{
-    const {memberId,classId} = await request.json();
+    const {AttendanceData} = await request.json();
     prisma.attendance.create({
       data: {
-        memberId: memberId,
-        classId: parseInt(classId),
+        memberId: AttendanceData.memberId,
+        classId: AttendanceData.classId,
         date: new Date(),
         entryTime: new Date(),
         exitTime: new Date(),
