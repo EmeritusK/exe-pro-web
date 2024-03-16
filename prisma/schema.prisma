@@ -1,0 +1,153 @@
+  // This is your Prisma schema file,
+  // learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+  // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+  // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+  generator client {
+    provider = "prisma-client-js"
+  }
+
+  datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+  }
+
+  model Member {
+    id          Int       @id @default(autoincrement())
+    membership  MemberShip @relation(fields: [membershipId], references: [id])
+    membershipId Int
+    fullName    String
+    dateOfBirth DateTime
+    email       String
+    phoneNumber String
+    address     String
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
+    deletedAt   DateTime?
+
+    Attendances Attendance[]
+    Classes     Class[]
+    Payments    Payment[]
+    WeightMeasures WeightMeasure[]
+    PhysicalEvaluations PhysicalEvaluation[]
+    }
+
+  model MemberShip {
+    id          Int      @id @default(autoincrement())
+    name        String
+    description String
+    price       Float
+    duration    Int //months
+    benefits    String[]
+
+    Members Member[]
+  }
+
+  model Trainer {
+    id          Int       @id @default(autoincrement())
+    fullName    String
+    dateOfBirth DateTime
+    email       String
+    phoneNumber String
+    address     String
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
+    deletedAt   DateTime?
+
+    Classes Class[]
+    TrainingPlans TrainingPlan[]
+  }
+
+  model Class {
+    id          Int       @id @default(autoincrement())
+    name        String
+    description String
+    duration    Int //minutes
+    trainer     Trainer   @relation(fields: [trainerId], references: [id])
+    trainerId   Int
+    members     Member[]
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
+    deletedAt   DateTime?
+
+    Attendances Attendance[]
+  }
+
+  model Attendance {
+    id        Int      @id @default(autoincrement())
+    member    Member   @relation(fields: [memberId], references: [id])
+    memberId  Int
+    class     Class    @relation(fields: [classId], references: [id])
+    classId   Int
+    date      DateTime
+    entryTime DateTime
+    exitTime  DateTime
+  }
+
+  model Payment {
+    id        Int      @id @default(autoincrement())
+    member    Member   @relation(fields: [memberId], references: [id])
+    memberId  Int
+    amount    Float
+    date      DateTime
+    createdAt DateTime @default(now())
+  }
+
+  model WeightMeasure {
+    id        Int      @id @default(autoincrement())
+    member    Member   @relation(fields: [memberId], references: [id])
+    memberId  Int
+    weight    Float
+    date      DateTime
+  }
+
+  model PhysicalEvaluation {
+    id        Int      @id @default(autoincrement())
+    member    Member   @relation(fields: [memberId], references: [id])
+    memberId  Int
+    date      DateTime
+    weight    Float
+    height    Float
+    fat       Float
+    muscle    Float
+    water     Float
+    bone      Float
+  }
+
+  model TrainingPlan {
+    id          Int      @id @default(autoincrement())
+    name        String
+    description String
+    duration    Int //days
+    trainer     Trainer  @relation(fields: [trainerId], references: [id])
+    trainerId   Int
+    exercises   Exercise[]
+  }
+
+  model Exercise {
+    id          Int      @id @default(autoincrement())
+    name        String
+    description String
+    duration    Int //minutes
+    sets        Int
+    reps        Int
+    rest        Int //seconds
+    trainingPlan TrainingPlan @relation(fields: [trainingPlanId], references: [id])
+    trainingPlanId Int
+    
+  }
+
+  model User {
+    id       Int      @id @default(autoincrement())
+    email    String   @unique
+    password String
+    role     Role     @relation(fields: [roleId], references: [id])
+    roleId   Int
+  }
+
+  model Role {
+    id   Int    @id @default(autoincrement())
+    name String @unique
+    users User[]
+  }
