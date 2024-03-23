@@ -1,15 +1,19 @@
-import { NextResponse } from "next/server";
-import { Prisma } from "@prisma/client";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/libs/prisma";
-import { RequestParams } from "@/interfaces/params";
 import { TrainerData } from "@/interfaces/trainer";
 
+export interface Params {
+  params: { id: string };
+}
 
-export async function GET({ params }: RequestParams) {
+export async function GET(_request: NextRequest, { params }: Params) {
+  console.log(params.id);
   try {
     const trainer = await prisma.trainer.findFirst({
+      
       where: {
         id: Number(params.id),
+        deletedAt: null,
       },
     });
 
@@ -31,18 +35,35 @@ export async function GET({ params }: RequestParams) {
   }
 }
 
-export async function PUT(request: Request, { params }: RequestParams) {
+export async function PUT(request: Request, { params }: Params) {
   try {
     const requestBody = await request.json();
     const trainerData = requestBody as Partial<TrainerData>; // Para que los campos sean opcionales
     await prisma.trainer.update({
       where: { id: Number(params.id) },
       data: {
-        ...trainerData, // Se mezclan los datos
-        updatedAt: new Date() // Actualizamos la fecha de actualización
+        ...trainerData, 
+        updatedAt: new Date() 
       }
     });
     return NextResponse.json({ message: "Entrenador actualizado" });
+  } catch (error) {
+    if(error instanceof Error){
+      return NextResponse.json({ message: error.message }, { status: 500 });
+    }
+  }
+}
+
+export async function DELETE(_request: Request, { params }: Params) {
+  try { // Para que los campos sean opcionales
+    await prisma.trainer.update({
+      where: { id: Number(params.id) },
+      data: {
+        deletedAt: new Date(),
+        updatedAt: new Date() 
+      }
+    });
+    return NextResponse.json({ message: "Entrenador borrado" });
   } catch (error) {
     if(error instanceof Error){
       return NextResponse.json({ message: error.message }, { status: 500 });
