@@ -38,7 +38,6 @@
     name        String
     description String
     price       Float
-    duration    Int //months
     benefits    String[]
 
     Members Member[]
