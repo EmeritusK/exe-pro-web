@@ -5,4 +5,5 @@ export interface MemberData {
   phoneNumber: string;
   address: string;
   updatedAt: Date;
+  memberShip: string;
 }
