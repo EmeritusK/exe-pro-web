@@ -1,8 +1,9 @@
+import SiteNavbar from "@/components/shared/navbar";
 
 function HomePage() {
   return (
     <div>
-      <h1>Home</h1>
+      <SiteNavbar></SiteNavbar>
     </div>
   );
 }

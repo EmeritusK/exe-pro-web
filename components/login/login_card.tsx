@@ -2,7 +2,7 @@ import React from "react";
 import { Card, CardHeader, CardBody, CardFooter, Divider, Link, Image, Input } from "@nextui-org/react";
 import { Button } from "@nextui-org/button";
 
-export default function App() {
+export default function LoginCard() {
   return (
     <div className="h-screen flex items-center justify-center">
       <Card className="max-w-[400px] w-96">
