@@ -3,7 +3,7 @@ import SiteNavbar from "@/components/shared/navbar";
 function HomePage() {
   return (
     <div>
-      <SiteNavbar></SiteNavbar>
+      <h1>HOME</h1>
     </div>
   );
 }
