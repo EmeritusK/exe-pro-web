@@ -1,8 +1,9 @@
+import Sidebar from "@/components/shared/sidebar";
 
 function ClientsPage() {
   return (
-    <div>
-    <h1>Clients</h1>
+    <div className="flex">
+      <h1 className="m-4">Dashbaord CLientes</h1>
     </div>
   );
 }

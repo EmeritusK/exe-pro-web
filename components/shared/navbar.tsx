@@ -1,19 +1,36 @@
 'use client';
 import React from "react";
-import { Navbar, NavbarBrand, Image, NavbarContent, NavbarItem, Link, DropdownItem, DropdownTrigger, Dropdown, DropdownMenu, Button } from "@nextui-org/react";
+import { Navbar, NavbarBrand, Image, NavbarContent, NavbarItem, Link, DropdownItem, DropdownTrigger, Dropdown, DropdownMenu, Button, NavbarMenu, NavbarMenuItem, NavbarMenuToggle, DropdownSection } from "@nextui-org/react";
 import { usePathname } from 'next/navigation';
 
 export default function SiteNavBar() {
+  //Implentear luego estados globales con Zustand
+  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const actualPath = usePathname();
 
-  const isActiveLink = (path: any) => {
-    return actualPath === path;
+  const menuItems = [
+    "Clientes",
+    "Entrenadores",
+    "Membresias",
+    "Configuración",
+  ];
+
+  const isActiveLink = (path: string) => {
+    return actualPath.startsWith(path);
   };
 
   return (
-    <Navbar isBlurred isBordered>
+    <Navbar isBlurred isBordered
+      isMenuOpen={isMenuOpen}
+      onMenuOpenChange={setIsMenuOpen}
+    >
+      <NavbarContent className="md:hidden" justify="start">
+        <NavbarMenuToggle aria-label={isMenuOpen ? "Close menu" : "Open menu"} />
+      </NavbarContent>
       <NavbarBrand>
-        <Image
+        <NavbarContent className="sm:hidden pr-3" justify="center">
+        </NavbarContent>
+        <Image className="hidden md:flex"
           height={70}
           width={70}
           alt="Logo EXE-PRO"
@@ -23,12 +40,12 @@ export default function SiteNavBar() {
       </NavbarBrand>
       <NavbarContent className="hidden md:flex gap-4" justify="center">
         <NavbarItem>
-          <Link color={isActiveLink('/clients') ? 'secondary' : 'foreground'} className="font-semibold" href="clients">
+          <Link color={isActiveLink('/clients') ? 'primary' : 'foreground'} className="font-semibold" href="/clients">
             Clientes
           </Link>
         </NavbarItem>
         <NavbarItem isActive={isActiveLink('/trainers')}>
-          <Link color={isActiveLink('/trainers') ? 'secondary' : 'foreground'} className="font-semibold" href="/trainers">
+          <Link color={isActiveLink('/trainers') ? 'primary' : 'foreground'} className="font-semibold" href="/trainers">
             Entrenadores
           </Link>
         </NavbarItem>
@@ -46,21 +63,39 @@ export default function SiteNavBar() {
             </Button>
           </DropdownTrigger>
           <DropdownMenu aria-label="Profile Actions">
-            <DropdownItem key="profile" className="h-14 gap-2">
-              <p className="font-semibold">Usuario ingresado:</p>
-              <p className="font-normal">cambiarDespues@mail.com</p>
-            </DropdownItem>
-            <DropdownItem key="settings">Configuración Personal</DropdownItem>
-            <DropdownItem key="analytics">Estadisticas Clientes</DropdownItem>
-            <DropdownItem key="system">Sistema</DropdownItem>
-            <DropdownItem key="configurations">Configuraciones</DropdownItem>
-            <DropdownItem key="help_and_feedback">Soporte</DropdownItem>
+            <DropdownSection title="Usuario" showDivider>
+              <DropdownItem key="profile">
+                cambiardespues@mail.com
+              </DropdownItem>
+            </DropdownSection>
+            <DropdownSection title="Accciones" showDivider>
+              <DropdownItem key="settings">Configuración Personal</DropdownItem>
+              <DropdownItem key="configurations">Configuraciones</DropdownItem>
+            </DropdownSection>
+            <DropdownSection title="Sesion">
             <DropdownItem key="logout" color="danger">
-              Cerrar Sesión
-            </DropdownItem>
+                Cerrar Sesión
+              </DropdownItem>
+          </DropdownSection>
           </DropdownMenu>
         </Dropdown>
       </NavbarContent>
+      <NavbarMenu>
+        {menuItems.map((item, index) => (
+          <NavbarMenuItem key={`${item}-${index}`}>
+            <Link
+              className="w-full"
+              color={
+                "foreground"
+              }
+              href="#"
+              size="lg"
+            >
+              {item}
+            </Link>
+          </NavbarMenuItem>
+        ))}
+      </NavbarMenu>
     </Navbar>
   );
 }

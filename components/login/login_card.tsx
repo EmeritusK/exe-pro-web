@@ -19,9 +19,9 @@ export default function LoginCard() {
         </CardHeader>
         <Divider />
         <CardBody>
-          <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
-            <Input type="email" label="Correo Electrónico" />
-            <Input type="password" label="Contraseña" />
+          <div className="md:flex-nowrap gap-4">
+            <Input type="email" className="pb-4" label="Correo Electrónico" />
+            <Input type="password" className="pb-4" label="Contraseña" />
           </div>
         </CardBody>
         <Divider />
