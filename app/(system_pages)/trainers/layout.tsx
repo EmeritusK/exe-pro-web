@@ -14,8 +14,8 @@ export default function Layout({
     <div className='flex'>
       <Sidebar title={'Entrenadores'} links={[
         { title: 'Administrar Entrenadores', path: '/memberships/admin-memberships' },
-        { title: 'Administrar Entrenadores', path: '/memberships/admin-memberships' },
-        { title: 'Administrar Entrenadores', path: '/memberships/admin-memberships' },
+        { title: 'Administrar Clases', path: '/memberships/admin-memberships' },
+        { title: 'Ver Entrenadores', path: '/memberships/create-membership' },
       ]}></Sidebar>
       <main>{children}</main>
     </div>
