@@ -2,11 +2,13 @@
 import React from "react";
 import { Navbar, NavbarBrand, Image, NavbarContent, NavbarItem, Link, DropdownItem, DropdownTrigger, Dropdown, DropdownMenu, Button, NavbarMenu, NavbarMenuItem, NavbarMenuToggle, DropdownSection } from "@nextui-org/react";
 import { usePathname } from 'next/navigation';
+import { logout } from "../login/actions";
 
-export default function SiteNavBar() {
+export default async function SiteNavBar() {
   //Implentear luego estados globales con Zustand
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const actualPath = usePathname();
+
 
   const menuItems = [
     "Clientes",
@@ -18,6 +20,7 @@ export default function SiteNavBar() {
   const isActiveLink = (path: string) => {
     return actualPath.startsWith(path);
   };
+
 
   return (
     <Navbar isBlurred isBordered
@@ -73,10 +76,14 @@ export default function SiteNavBar() {
               <DropdownItem key="configurations">Configuraciones</DropdownItem>
             </DropdownSection>
             <DropdownSection title="Sesion">
-            <DropdownItem key="logout" color="danger">
-                Cerrar Sesión
+              <DropdownItem key="logout" color="danger">
+                <form>
+                  <button formAction={logout}>
+                    Cerrar Sesión
+                  </button>
+                </form>
               </DropdownItem>
-          </DropdownSection>
+            </DropdownSection>
           </DropdownMenu>
         </Dropdown>
       </NavbarContent>

@@ -9,7 +9,8 @@ export default function Layout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className='flex'>
+    <div> 
+      <main className='flex w-full h-screen justify-center items-center'>
       <Sidebar
         title='Clientes'
         links={[
@@ -17,9 +18,10 @@ export default function Layout({
           { title: 'Administrar Clientes', path: '/clients/admin-clients' },
           { title: 'Asignar Instructores', path: '/clients/trainer-asignment' },
           { title: 'Asignar Clases', path: '/clients/classes-asignment' },
-        ]}>
-      </Sidebar>
-      <main>{children}</main>
+        ]}
+      />
+        {children}
+        </main>
     </div>
   );
 }
