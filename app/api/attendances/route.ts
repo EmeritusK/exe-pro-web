@@ -1,5 +1,0 @@
-import {}
-
-expor function GET(){
-
-}
