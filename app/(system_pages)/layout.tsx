@@ -12,12 +12,11 @@ export default async function Layout({
   children: React.ReactNode;
 }>) {
   const supabase = createClient()
-  console.log("CLIENTE");
-  console.log(supabase);
   const { data, error } = await supabase.auth.getUser()
   if (error || !data?.user) {
     redirect('/login')
   }
+  console.log(data);
   return (
     <>
       <SiteNavBar></SiteNavBar>

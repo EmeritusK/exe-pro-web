@@ -4,7 +4,7 @@ import { Navbar, NavbarBrand, Image, NavbarContent, NavbarItem, Link, DropdownIt
 import { usePathname } from 'next/navigation';
 import { logout } from "../login/actions";
 
-export default async function SiteNavBar() {
+export default function SiteNavBar() {
   //Implentear luego estados globales con Zustand
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const actualPath = usePathname();
