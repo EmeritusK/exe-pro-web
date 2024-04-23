@@ -16,7 +16,6 @@ export default async function Layout({
   if (error || !data?.user) {
     redirect('/login')
   }
-  console.log(data);
   return (
     <>
       <SiteNavBar></SiteNavBar>

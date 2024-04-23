@@ -1,5 +1,5 @@
 'use client';
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   TableHeader,
@@ -20,11 +20,12 @@ import {
   ChipProps,
   SortDescriptor
 } from "@nextui-org/react";
-import {columns, clients, statusOptions} from "./data";
+import {columns, members, statusOptions} from "./data";
 import {capitalize} from "./utils";
 import { FaPlusCircle, FaSearch } from "react-icons/fa";
 import { FaCircleChevronDown } from "react-icons/fa6";
 import { HiOutlineDotsVertical } from "react-icons/hi";
+import { getMembers } from "@/data/getMembers";
 
 const statusColorMap: Record<string, ChipProps["color"]> = {
   activo: "success",
@@ -34,9 +35,9 @@ const statusColorMap: Record<string, ChipProps["color"]> = {
 
 const INITIAL_VISIBLE_COLUMNS = ["name", "membership", "status", "actions"];
 
-type Client = typeof clients[0];
 
 export default function App() {
+  const [clients, setClients] = useState<Member[]>([]);
   const [filterValue, setFilterValue] = React.useState("");
   const [selectedKeys, setSelectedKeys] = React.useState<Selection>(new Set([]));
   const [visibleColumns, setVisibleColumns] = React.useState<Selection>(new Set(INITIAL_VISIBLE_COLUMNS));
@@ -46,6 +47,20 @@ export default function App() {
     column: "age",
     direction: "ascending",
   });
+
+  useEffect(() => {
+    fetchMembers();
+  }, []);
+
+  async function fetchMembers(){
+    const members = await getMembers();
+    setClients(members);
+  }
+  
+
+type Client = typeof clients[0];
+
+
 
   const [page, setPage] = React.useState(1);
 

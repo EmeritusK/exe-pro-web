@@ -1,17 +1,18 @@
 'use client';
 import SiteNavbar from "@/components/shared/navbar";
-import { getClient } from "@/data/getClients";
+import { getMember,getMembers } from "@/data/getMembers";
+import { getTrainer, getTrainers } from "@/data/getTrainers";
 import { Button } from "@nextui-org/react";
 
 function HomePage() {
 
-  const clickAction = async () => {await getClient('1')};
+  const clickAction = async () => {await getMembers()};
 
   return (
     <div>
       <h1>HOME</h1>
       <Button onClick={clickAction}>
-        Ver Clientes
+        Ver Cliente
       </Button>
     </div>
   );
