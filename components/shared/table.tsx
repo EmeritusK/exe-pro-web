@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import {
   Table,
   TableHeader,
@@ -18,14 +18,29 @@ import {
   Pagination,
   Selection,
   ChipProps,
-  SortDescriptor
+  SortDescriptor, useDisclosure,
+  Modal, ModalContent,
+  ModalHeader, ModalBody,
+  ModalFooter
 } from "@nextui-org/react";
-import {columns, members, statusOptions} from "./data";
-import {capitalize} from "./utils";
+import { columns, statusOptions } from "./data";
+import { capitalize } from "./utils";
 import { FaPlusCircle, FaSearch } from "react-icons/fa";
 import { FaCircleChevronDown } from "react-icons/fa6";
 import { HiOutlineDotsVertical } from "react-icons/hi";
-import { getMembers } from "@/data/getMembers";
+
+
+
+
+interface TableProps {
+  name: string;
+  initial_visible_columns: string[];
+  sort_descriptor: {};
+  getData: () => Promise<any[]>;
+  onDelete: (id: string) => void;
+  modalContent: ReactNode;
+}
+
 
 const statusColorMap: Record<string, ChipProps["color"]> = {
   activo: "success",
@@ -33,32 +48,35 @@ const statusColorMap: Record<string, ChipProps["color"]> = {
   pausado: "warning",
 };
 
-const INITIAL_VISIBLE_COLUMNS = ["name", "membership", "status", "actions"];
 
-
-export default function App() {
-  const [clients, setClients] = useState<Member[]>([]);
+export default function App(props: TableProps) {
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [data, setData] = useState<any[]>([]);
   const [filterValue, setFilterValue] = React.useState("");
   const [selectedKeys, setSelectedKeys] = React.useState<Selection>(new Set([]));
-  const [visibleColumns, setVisibleColumns] = React.useState<Selection>(new Set(INITIAL_VISIBLE_COLUMNS));
+  const [visibleColumns, setVisibleColumns] = React.useState<Selection>(new Set(props.initial_visible_columns));
   const [statusFilter, setStatusFilter] = React.useState<Selection>("all");
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
-  const [sortDescriptor, setSortDescriptor] = React.useState<SortDescriptor>({
-    column: "age",
-    direction: "ascending",
-  });
-
+  const [sortDescriptor, setSortDescriptor] = React.useState<SortDescriptor>(props.sort_descriptor);
+  const [dataTitles, setDataTitles] = useState<string[]>([]);
   useEffect(() => {
-    fetchMembers();
+    fetchData();
   }, []);
 
-  async function fetchMembers(){
-    const members = await getMembers();
-    setClients(members);
+  async function fetchData() {
+    const data = await props.getData();
+    extractTitles(data);
+    setData(data);
   }
-  
 
-type Client = typeof clients[0];
+  function extractTitles(data: any[]) {
+    const titles = Object.keys(data[0]);
+    setDataTitles(titles);
+    return titles;
+  }
+
+
+  type Data = typeof data[0];
 
 
 
@@ -73,21 +91,22 @@ type Client = typeof clients[0];
   }, [visibleColumns]);
 
   const filteredItems = React.useMemo(() => {
-    let filteredUsers = [...clients];
+    let filteredUsers = [...data];
 
     if (hasSearchFilter) {
-      filteredUsers = filteredUsers.filter((client) =>
-        client.name.toLowerCase().includes(filterValue.toLowerCase()),
+      filteredUsers = filteredUsers.filter((data) =>
+        data.name.toLowerCase().includes(filterValue.toLowerCase()),
       );
+
     }
     if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions.length) {
-      filteredUsers = filteredUsers.filter((client) =>
-        Array.from(statusFilter).includes(client.status),
+      filteredUsers = filteredUsers.filter((data) =>
+        Array.from(statusFilter).includes(data.status),
       );
     }
 
     return filteredUsers;
-  }, [clients, filterValue, statusFilter]);
+  }, [data, filterValue, statusFilter]);
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage);
 
@@ -99,39 +118,52 @@ type Client = typeof clients[0];
   }, [page, filteredItems, rowsPerPage]);
 
   const sortedItems = React.useMemo(() => {
-    return [...items].sort((a:Client, b: Client) => {
-      const first = a[sortDescriptor.column as keyof Client] as number;
-      const second = b[sortDescriptor.column as keyof Client] as number;
+    return [...items].sort((a: Data, b: Data) => {
+      const first = a[sortDescriptor.column as keyof Data] as number;
+      const second = b[sortDescriptor.column as keyof Data] as number;
       const cmp = first < second ? -1 : first > second ? 1 : 0;
 
       return sortDescriptor.direction === "descending" ? -cmp : cmp;
     });
   }, [sortDescriptor, items]);
 
-  const renderCell = React.useCallback((client: Client, columnKey: React.Key) => {
-    const cellValue = client[columnKey as keyof Client];
+  const renderCell = React.useCallback((data: Data, columnKey: React.Key) => {
+    const cellValue = data[columnKey as keyof Data];
+
+    const onDeleteClick = async () => {
+      props.onDelete(data.id);
+      setData(await props.getData());
+    };
+    const onEditClick = () => { console.log(`editar ${data.id}`) };
+    const onViewClick = () => { console.log(`ver ${data.id}`) };
 
     switch (columnKey) {
       case "name":
         return (
           <User
-            avatarProps={{radius: "lg", src: client.avatar}}
-            description={client.email}
+            avatarProps={{ radius: "lg", src: data.avatar }}
+            description={data.email}
             name={cellValue}
           >
-            {client.email}
+            {data.email}
           </User>
+        );
+      case "genre":
+        return (
+          <div className="flex flex-col">
+            <p className="text-bold text-small capitalize">{cellValue}</p>
+          </div>
         );
       case "membership":
         return (
           <div className="flex flex-col">
             <p className="text-bold text-small capitalize">{cellValue}</p>
-            <p className="text-bold text-tiny capitalize text-default-400">{client.membershipTime}</p>
+            <p className="text-bold text-tiny capitalize text-default-400">{data.membershipTime}</p>
           </div>
         );
       case "status":
         return (
-          <Chip className="capitalize" color={statusColorMap[client.status]} size="sm" variant="flat">
+          <Chip className="capitalize" color={statusColorMap[data.status]} size="sm" variant="flat">
             {cellValue}
           </Chip>
         );
@@ -141,13 +173,13 @@ type Client = typeof clients[0];
             <Dropdown>
               <DropdownTrigger>
                 <Button isIconOnly size="sm" variant="light">
-                  <HiOutlineDotsVertical  className="text-default-300" />
+                  <HiOutlineDotsVertical className="text-default-300" />
                 </Button>
               </DropdownTrigger>
               <DropdownMenu>
-                <DropdownItem>Ver</DropdownItem>
-                <DropdownItem>Editar</DropdownItem>
-                <DropdownItem>Borrar</DropdownItem>
+                <DropdownItem onClick={onViewClick}>Ver</DropdownItem>
+                <DropdownItem onClick={onEditClick}>Editar</DropdownItem>
+                <DropdownItem onClick={onDeleteClick}>Borrar</DropdownItem>
               </DropdownMenu>
             </Dropdown>
           </div>
@@ -183,10 +215,10 @@ type Client = typeof clients[0];
     }
   }, []);
 
-  const onClear = React.useCallback(()=>{
+  const onClear = React.useCallback(() => {
     setFilterValue("")
     setPage(1)
-  },[])
+  }, [])
 
   const topContent = React.useMemo(() => {
     return (
@@ -198,7 +230,7 @@ type Client = typeof clients[0];
             placeholder="Buscar por nombre..."
             startContent={
               <FaSearch />
-          }
+            }
             value={filterValue}
             onClear={() => onClear()}
             onValueChange={onSearchChange}
@@ -246,13 +278,13 @@ type Client = typeof clients[0];
                 ))}
               </DropdownMenu>
             </Dropdown>
-            <Button color="primary" endContent={<FaPlusCircle />}>
+            <Button onPress={onOpen} color="primary" endContent={<FaPlusCircle />}>
               Agregar
             </Button>
           </div>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-default-400 text-small">{clients.length} clientes en total</span>
+          <span className="text-default-400 text-small">{data.length} {props.name} en total</span>
           <label className="flex items-center text-default-400 text-small">
             Datos por pagina
             <select
@@ -273,7 +305,7 @@ type Client = typeof clients[0];
     visibleColumns,
     onSearchChange,
     onRowsPerPageChange,
-    clients.length,
+    data.length,
     hasSearchFilter,
   ]);
 
@@ -307,40 +339,63 @@ type Client = typeof clients[0];
   }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
 
   return (
-    <Table
-      aria-label="Example table with custom cells, pagination and sorting"
-      isHeaderSticky
-      bottomContent={bottomContent}
-      bottomContentPlacement="outside"
-      classNames={{
-        wrapper: "max-h-[382px]",
-      }}
-      selectedKeys={selectedKeys}
-      selectionMode="multiple"
-      sortDescriptor={sortDescriptor}
-      topContent={topContent}
-      topContentPlacement="outside"
-      onSelectionChange={setSelectedKeys}
-      onSortChange={setSortDescriptor}
-    >
-      <TableHeader columns={headerColumns}>
-        {(column) => (
-          <TableColumn
-            key={column.uid}
-            align={column.uid === "actions" ? "center" : "start"}
-            allowsSorting={column.sortable}
-          >
-            {column.name}
-          </TableColumn>
-        )}
-      </TableHeader>
-      <TableBody emptyContent={"No existen clientes regitrados"} items={sortedItems}>
-        {(item) => (
-          <TableRow key={item.id}>
-            {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
-          </TableRow>
-        )}
-      </TableBody>
-    </Table>
+    <>
+      <Table
+        aria-label="Tabla de items"
+        isHeaderSticky
+        bottomContent={bottomContent}
+        bottomContentPlacement="outside"
+        classNames={{
+          wrapper: "max-h-[382px]",
+        }}
+        selectedKeys={selectedKeys}
+        selectionMode="multiple"
+        sortDescriptor={sortDescriptor}
+        topContent={topContent}
+        topContentPlacement="outside"
+        onSelectionChange={setSelectedKeys}
+        onSortChange={setSortDescriptor}
+      >
+        <TableHeader columns={headerColumns}>
+          {(column) => (
+            <TableColumn
+              key={column.uid}
+              align={column.uid === "actions" ? "center" : "start"}
+              allowsSorting={column.sortable}
+            >
+              {column.name}
+            </TableColumn>
+          )}
+        </TableHeader>
+        <TableBody emptyContent={`No existen ${props.name} regitrados`} items={sortedItems}>
+          {(item) => (
+            <TableRow key={item.id}>
+              {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">Modal Title</ModalHeader>
+              <ModalBody>
+                {props.modalContent}
+              </ModalBody>
+              <ModalFooter>
+                <Button color="danger" variant="light" onPress={onClose}>
+                  Cancelar
+                </Button>
+                <Button color="primary" onPress={onClose}>
+                  Guardar
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+    </>
+
   );
 }

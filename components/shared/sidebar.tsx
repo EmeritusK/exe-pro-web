@@ -15,7 +15,7 @@ export default function Sidebar(props: SidebarProps) {
   };
 
   return (
-    <div className="bg-black w-64 h-full">
+    <div className="w-64 h-full">
       <div className="flex items-center justify-center h-16 border-b border-gray-700">
         <h1 className="text-white font-bold">{props.title}</h1>
       </div>

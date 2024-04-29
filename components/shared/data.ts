@@ -1,4 +1,4 @@
-import { getMembers } from '@/data/getMembers';
+import { getMembers } from '@/data/GetMembers';
 
 const columns = [
   { name: "ID", uid: "id", sortable: true },
@@ -17,12 +17,5 @@ const statusOptions = [
   { name: "Dado de baja", uid: "inactivo" },
 ];
 
-async function getMembersData() {
-  const members = await getMembers();
-  return members;
-}
 
-
-const clients = getMembersData();
-
-export { columns, clients, statusOptions };
+export { columns, statusOptions };

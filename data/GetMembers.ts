@@ -23,12 +23,12 @@ export async function getMember(id:String){
   return member;
 }
 
-export async function getMembers(){
+export async function getMembers(): Promise<Member[]>{
   const supabase = createClient();
   const { data, error } = await supabase.from('members').select(`*,memberships!inner(name)`);
   if (error) {
     console.log(error);
-    return error;
+    return [];
   }
   const members: Member[] = data.map((member) => {
     return {
@@ -39,9 +39,19 @@ export async function getMembers(){
       phone: member.phoneNumber,
       membership: member.memberships.name,
       membershipTime: member.membership_plan,
-      avatar: "https://cdn.iconscout.com/icon/free/png-256/avatar-380-456332.png" //Cambair por avatar de cada miembro
+      avatar: "https://cdn.iconscout.com/icon/free/png-256/avatar-380-456332.png",//Cambair por avatar de cada miembro
+      genre: member.genre
     };
   });
-  console.log(members);
   return members;
+}
+
+export async function deleteMember(id:String){
+  const supabase = createClient();
+  const { data, error } = await supabase.from('members').delete().eq('id', id);
+  if (error) {
+    console.log(error);
+    return error;
+  }
+  return data;
 }
