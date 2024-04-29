@@ -28,6 +28,7 @@ import { capitalize } from "./utils";
 import { FaPlusCircle, FaSearch } from "react-icons/fa";
 import { FaCircleChevronDown } from "react-icons/fa6";
 import { HiOutlineDotsVertical } from "react-icons/hi";
+import { useDisclosureStore } from "@/stores/modal-add-member-store";
 
 
 
@@ -50,7 +51,7 @@ const statusColorMap: Record<string, ChipProps["color"]> = {
 
 
 export default function App(props: TableProps) {
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { isOpen, onOpen, onOpenChange } = useDisclosureStore();
   const [data, setData] = useState<any[]>([]);
   const [filterValue, setFilterValue] = React.useState("");
   const [selectedKeys, setSelectedKeys] = React.useState<Selection>(new Set([]));
@@ -379,17 +380,11 @@ export default function App(props: TableProps) {
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className="flex flex-col gap-1">Modal Title</ModalHeader>
+              <ModalHeader className="flex flex-col gap-1">Ingresar Nuevo Miembro</ModalHeader>
               <ModalBody>
                 {props.modalContent}
               </ModalBody>
               <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
-                  Cancelar
-                </Button>
-                <Button color="primary" onPress={onClose}>
-                  Guardar
-                </Button>
               </ModalFooter>
             </>
           )}
