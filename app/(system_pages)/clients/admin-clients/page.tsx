@@ -1,6 +1,6 @@
 'use client';
 import DataTable from "@/components/shared/table";
-import {deleteMember, getMembers} from "@/data/GetMembers";
+import {deleteMember, getMembers} from "@/data/membersService";
 import AddMemberContent from "./components/add-member-modal-content";
 function AdminClientsPage() {
 

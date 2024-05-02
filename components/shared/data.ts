@@ -1,4 +1,4 @@
-import { getMembers } from '@/data/GetMembers';
+import { getMembers } from '@/data/membersService';
 
 const columns = [
   { name: "ID", uid: "id", sortable: true },

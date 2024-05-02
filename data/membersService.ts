@@ -55,3 +55,27 @@ export async function deleteMember(id:String){
   }
   return data;
 }
+
+export async function createMember(member:MemberToSend){
+  const supabase = createClient();
+  console.log(member);
+  const { data, error } = await supabase.from('members').insert([
+    { 
+      id_card: member.id_card,
+      fullName:`${member.name} ${member.lastname}`,
+      email: member.email,
+      dateOfBirth: member.dateOfBirth,
+      phoneNumber: member.phone,
+      address: member.address,
+      membershipId: member.membershipId,
+      genre: member.genre,
+      membership_plan: member.membershipTime,
+      status: 'activo',
+    }
+  ]);
+  if (error) {
+    console.log(error);
+    return error;
+  }
+  return data;
+}

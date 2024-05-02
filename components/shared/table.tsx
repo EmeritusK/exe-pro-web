@@ -29,6 +29,7 @@ import { FaPlusCircle, FaSearch } from "react-icons/fa";
 import { FaCircleChevronDown } from "react-icons/fa6";
 import { HiOutlineDotsVertical } from "react-icons/hi";
 import { useDisclosureStore } from "@/stores/modal-add-member-store";
+import { useMemberStore } from "@/stores/members-store";
 
 
 
@@ -52,7 +53,7 @@ const statusColorMap: Record<string, ChipProps["color"]> = {
 
 export default function App(props: TableProps) {
   const { isOpen, onOpen, onOpenChange } = useDisclosureStore();
-  const [data, setData] = useState<any[]>([]);
+  const { data, setData } = useMemberStore();
   const [filterValue, setFilterValue] = React.useState("");
   const [selectedKeys, setSelectedKeys] = React.useState<Selection>(new Set([]));
   const [visibleColumns, setVisibleColumns] = React.useState<Selection>(new Set(props.initial_visible_columns));
