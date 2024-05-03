@@ -1,6 +1,6 @@
 'use client';
 import { getMemberships } from "@/data/getMemberships";
-import { createMember } from "@/data/membersService";
+import { createMember, getMember, updateMember } from "@/data/membersService";
 import { useMemberStore } from "@/stores/members-store";
 import { useDisclosureStore } from "@/stores/modal-add-member-store";
 import { Button, Checkbox, DatePicker, Input, Link, Select, SelectItem } from "@nextui-org/react";
@@ -10,14 +10,27 @@ import { FaAddressCard, FaClipboardUser } from "react-icons/fa6";
 import { IoMail, IoPhonePortraitOutline } from "react-icons/io5";
 import { MdGpsFixed, MdOutlinePhoneAndroid } from "react-icons/md";
 
-export default function AddMemberContent() {
+interface TableProps {
+id: number;
+}
+
+export default function EditMemberContent(props: TableProps) {
 
   const [plans, setPlans] = useState<Membership[]>([]);
-
+  const [member, setMember] = useState<Member>();
 
   useEffect(() => {
     fetchMembershipsData();
+    fetchData();
   }, []);
+
+
+  async function fetchData() {
+    const data = await getMember(props.id);
+    console.log(data);
+    setMember(data);
+  
+  }
 
   async function fetchMembershipsData() {
     const data = await getMemberships();
@@ -25,6 +38,19 @@ export default function AddMemberContent() {
     setPlans(data);
   }
 
+  useEffect(() => {
+    if (member) {
+      setName(member.name || "");
+      setLastName(member.lastname || "");
+      setIdNumber(member.id_card || "");
+      setEmail(member.email || "");
+      setPhone(member.phone || "");
+      setAddress(member.address || "");
+      setGenre(member.genre || "");
+      setMembershipTime(member.membershipTime || "");
+      setMemebershipId(member.membershipId || 0);
+    }
+  }, [member]);
   const genres = [
     { label: "Masculino", value: "M" },
     { label: "Femenino", value: "F" },
@@ -42,7 +68,7 @@ export default function AddMemberContent() {
 
   const { onOpenChange } = useDisclosureStore();
   const [newMember, setNewMember] = useState<MemberToSend>({
-    id: '',
+    id: props.id.toString(),
     name:'',
     lastname: '',
     id_card: '',
@@ -57,18 +83,19 @@ export default function AddMemberContent() {
     status: '',
     membershipId: 0,
   });
-  const [genre, setGenre] = React.useState<string>("");
+  const [genre, setGenre] = React.useState<string>();
   const [membershipTime, setMembershipTime] = React.useState<string>("");
   const [membershipId, setMemebershipId] = React.useState<number>(0);
   const { data, setData } = useMemberStore();
 
 
-  const onClickAddMember = async () => {
+  const onClickEditMember = async () => {
     if(!newMember) return;
-    await createMember(newMember);
+    console.log(newMember);
+    await updateMember(newMember);
+    window.location.reload();
     onOpenChange();
     setData([...data, newMember]);
-    window.location.reload();
   }
 
   const handleGenreSelectionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -89,7 +116,7 @@ export default function AddMemberContent() {
     setNewMember({ ...newMember, membershipId: selectedMembershipId });
   };
 
-  const [email, setEmail] = React.useState("");
+  const [email, setEmail] = React.useState(member?.email || "");
   const [idNumber, setIdNumber] = React.useState("");
   const [name, setName] = React.useState("");
   const [lastname, setLastName] = React.useState("");
@@ -100,8 +127,8 @@ export default function AddMemberContent() {
   const validateIdNumber = (value: any) => value.match(/^[0-9]{10}$/i);
   const validateName = (value: any) => value.match(/^[a-zA-Z\s]*$/i);
   const validateLastName = (value: any) => value.match(/^[a-zA-Z\s]*$/i);
-  const validatePhone = (value: any) => value.match(/^[0-9]{10}$/i);
-  const validateAddress = (value: any) => value.match(/^[a-zA-Z\s]*$/i);
+  const validatePhone = (value: any) => value.match(/^.*$/);
+  const validateAddress = (value: any) => value.match(/^.*$/);
 
 
 
@@ -149,7 +176,7 @@ export default function AddMemberContent() {
       membershipId !== 0;
   
     setDisabledButton(!isValidForm);
-  }, [isNameInvalid, isLastNameInvalid, isIdNumberInvalid, isEmailInvalid, isPhoneInvalid, isAddressInvalid, genre, membershipTime, membershipId]);
+  }, [member,isNameInvalid, isLastNameInvalid, isIdNumberInvalid, isEmailInvalid, isPhoneInvalid, isAddressInvalid, genre, membershipTime, membershipId]);
 
   return (
     <>
@@ -159,6 +186,7 @@ export default function AddMemberContent() {
           endContent={
             <FaClipboardUser className="text-lg text-default-400 pointer-events-none flex-shrink-0" />
           }
+          value={name}
           label="Nombre"
           placeholder="Escriba su nombre"
           variant="bordered"
@@ -170,6 +198,7 @@ export default function AddMemberContent() {
 
         />
         <Input
+          value={lastname}
           className="ml-2"
           autoFocus
           endContent={
@@ -186,6 +215,7 @@ export default function AddMemberContent() {
         />
       </div>
       <Input
+        value={idNumber}
         autoFocus
         endContent={
           <FaAddressCard className="text-lg text-default-400 pointer-events-none flex-shrink-0" />
@@ -200,6 +230,7 @@ export default function AddMemberContent() {
         onChange={(e) => setNewMember({ ...newMember, id_card: e.target.value })}
       />
       <Input
+        value={email}
         autoFocus
         endContent={
           <IoMail className="text-lg text-default-400 pointer-events-none flex-shrink-0" />
@@ -216,6 +247,7 @@ export default function AddMemberContent() {
       />
       <DatePicker label="Fecha de Nacimiento" variant="bordered" />
       <Input
+        value={phone}
         autoFocus
         endContent={
           <MdOutlinePhoneAndroid className="text-lg text-default-400 pointer-events-none flex-shrink-0" />
@@ -230,6 +262,7 @@ export default function AddMemberContent() {
         onChange={(e) => setNewMember({ ...newMember, phone: e.target.value })}
       />
       <Input
+        value={address}
         autoFocus
         endContent={
           <MdGpsFixed className="text-lg text-default-400 pointer-events-none flex-shrink-0" />
@@ -246,6 +279,7 @@ export default function AddMemberContent() {
       <div className="flex items-center">
         <div className="flex w-full flex-wrap md:flex-nowrap gap-4 mr-2">
           <Select
+            defaultSelectedKeys={genre}
             label="Genero"
             variant="bordered"
             onChange={(e)=>handleGenreSelectionChange(e)}
@@ -259,6 +293,7 @@ export default function AddMemberContent() {
         </div>
         <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
           <Select
+            defaultSelectedKeys={["SEMESTRAL"]}
             label="Tiempo de Membresia"
             variant="bordered"
             onChange={(e)=>handleMembershipTimeSelectionChange(e)}
@@ -273,6 +308,7 @@ export default function AddMemberContent() {
       </div>
       <div className="flex w-full flex-wrap md:flex-nowrap gap-4 mr-2">
           <Select
+            defaultSelectedKeys={[]}
             label="Tipo de Membresia"
             variant="bordered"
             onChange={(e)=>handleMemershipSelectionChange(e)}
@@ -285,7 +321,7 @@ export default function AddMemberContent() {
           </Select>
         </div>
       <div className="flex items-center justify-center">
-        <Button color="primary" className="mr-4" onPress={onClickAddMember} isDisabled={disabledButton}>
+        <Button color="primary" className="mr-4" onPress={onClickEditMember} isDisabled={disabledButton} type="submit">
           Guardar
         </Button>
         <Button color="danger" onPress={onOpenChange}>

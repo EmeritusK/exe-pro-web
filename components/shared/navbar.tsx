@@ -12,7 +12,6 @@ export default function SiteNavBar() {
 
   const menuItems = [
     "Clientes",
-    "Entrenadores",
     "Membresias",
     "Configuración",
   ];
@@ -47,16 +46,7 @@ export default function SiteNavBar() {
             Clientes
           </Link>
         </NavbarItem>
-        <NavbarItem isActive={isActiveLink('/trainers')}>
-          <Link color={isActiveLink('/trainers') ? 'primary' : 'foreground'} className="font-semibold" href="/trainers">
-            Entrenadores
-          </Link>
-        </NavbarItem>
-        <NavbarItem>
-          <Link color={isActiveLink('/memberships') ? 'secondary' : 'foreground'} className="font-semibold" href="/memberships">
-            Membresias
-          </Link>
-        </NavbarItem>
+
       </NavbarContent>
       <NavbarContent as="div" justify="end">
         <Dropdown placement="bottom-end">

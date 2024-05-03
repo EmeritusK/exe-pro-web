@@ -30,6 +30,11 @@ import { FaCircleChevronDown } from "react-icons/fa6";
 import { HiOutlineDotsVertical } from "react-icons/hi";
 import { useDisclosureStore } from "@/stores/modal-add-member-store";
 import { useMemberStore } from "@/stores/members-store";
+import { on } from "events";
+import EditMemberContent from "@/app/(system_pages)/clients/admin-clients/components/edit-member-modal-content";
+import ViewMemberContent from "@/app/(system_pages)/clients/admin-clients/components/view-member-modal-content";
+import AddMeasureModalContent from "@/app/(system_pages)/clients/admin-clients/components/measure-member-modal";
+import { getUserData } from "@/data/membersService";
 
 
 
@@ -52,7 +57,10 @@ const statusColorMap: Record<string, ChipProps["color"]> = {
 
 
 export default function App(props: TableProps) {
-  const { isOpen, onOpen, onOpenChange } = useDisclosureStore();
+  const { isOpen: isAddModalOpen, onOpen: onAddModalOpen, onOpenChange: onAddModalOpenChange } = useDisclosure();
+  const { isOpen: isEditModalOpen, onOpen: onEditModalOpen, onOpenChange: onEditModalOpenChange } = useDisclosure();
+  const { isOpen: isViewModalOpen, onOpen: onViewModalOpen, onOpenChange: onViewModalOpenChange } = useDisclosure();
+  const { isOpen: isMeasureModalOpen, onOpen: onMeasureModalOpen, onOpenChange: onMeasureModalOpenChange } = useDisclosure();
   const { data, setData } = useMemberStore();
   const [filterValue, setFilterValue] = React.useState("");
   const [selectedKeys, setSelectedKeys] = React.useState<Selection>(new Set([]));
@@ -61,14 +69,39 @@ export default function App(props: TableProps) {
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [sortDescriptor, setSortDescriptor] = React.useState<SortDescriptor>(props.sort_descriptor);
   const [dataTitles, setDataTitles] = useState<string[]>([]);
+  const [id, setId] = useState<number>(0);
+  const [userData, setUserData] = useState<any>({});
+
+
   useEffect(() => {
     fetchData();
   }, []);
 
   async function fetchData() {
     const data = await props.getData();
-    extractTitles(data);
+    //extractTitles(data);
     setData(data);
+    const user = await getUserData();
+    console.log(user);
+    setUserData(user);
+  }
+
+  let isAdmin = true;
+  let isEmployee = false;
+  let isClient = false;
+
+  if (userData.userrole = "admin") {
+    isAdmin = true;
+    isEmployee = false;
+    isClient = false;
+  } else if (userData.userrole = "employee") {
+    isEmployee = true;
+    isAdmin = false;
+    isClient = false;
+  } else {
+    isClient = true;
+    isAdmin = false;
+    isEmployee = false;
   }
 
   function extractTitles(data: any[]) {
@@ -136,8 +169,20 @@ export default function App(props: TableProps) {
       props.onDelete(data.id);
       setData(await props.getData());
     };
-    const onEditClick = () => { console.log(`editar ${data.id}`) };
-    const onViewClick = () => { console.log(`ver ${data.id}`) };
+    const onEditClick = async () => {
+      onEditModalOpen();
+      setId(data.id);
+      console.log(`editarsss ${data.id}`)
+    };
+    const onViewClick = async () => {
+      onViewModalOpen();
+      setId(data.id);
+      console.log(`ver ${data.id}`)
+    };
+    const onMeasureAddClick = async () => {
+      onMeasureModalOpen();
+      setId(data.id);
+    };
 
     switch (columnKey) {
       case "name":
@@ -178,11 +223,18 @@ export default function App(props: TableProps) {
                   <HiOutlineDotsVertical className="text-default-300" />
                 </Button>
               </DropdownTrigger>
-              <DropdownMenu>
-                <DropdownItem onClick={onViewClick}>Ver</DropdownItem>
-                <DropdownItem onClick={onEditClick}>Editar</DropdownItem>
-                <DropdownItem onClick={onDeleteClick}>Borrar</DropdownItem>
-              </DropdownMenu>
+              {isAdmin ? (
+                <DropdownMenu>
+                  <DropdownItem onClick={onViewClick}>Ver</DropdownItem>
+                  <DropdownItem onClick={onMeasureAddClick}>Agregar Medidas</DropdownItem>
+                  <DropdownItem onClick={onEditClick}>Editar</DropdownItem>
+                  <DropdownItem onClick={onDeleteClick}>Borrar</DropdownItem>
+                </DropdownMenu>
+              ) : (
+                <DropdownMenu>
+                  <DropdownItem hidden={true} onClick={onViewClick}>Ver</DropdownItem>
+                </DropdownMenu>
+              )}
             </Dropdown>
           </div>
         );
@@ -280,7 +332,7 @@ export default function App(props: TableProps) {
                 ))}
               </DropdownMenu>
             </Dropdown>
-            <Button onPress={onOpen} color="primary" endContent={<FaPlusCircle />}>
+            <Button onPress={onAddModalOpen} color="primary" endContent={<FaPlusCircle />}>
               Agregar
             </Button>
           </div>
@@ -377,13 +429,55 @@ export default function App(props: TableProps) {
           )}
         </TableBody>
       </Table>
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+      <Modal isOpen={isAddModalOpen} onOpenChange={onAddModalOpenChange}>
         <ModalContent>
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1">Ingresar Nuevo Miembro</ModalHeader>
               <ModalBody>
                 {props.modalContent}
+              </ModalBody>
+              <ModalFooter>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+      <Modal isOpen={isEditModalOpen} onOpenChange={onEditModalOpenChange}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1" >Editar Miembro</ModalHeader>
+              <ModalBody>
+                <EditMemberContent id={id} />
+              </ModalBody>
+              <ModalFooter>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+      <Modal isOpen={isViewModalOpen} onOpenChange={onViewModalOpenChange}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1" >Ver Miembro</ModalHeader>
+              <ModalBody>
+                <ViewMemberContent id={id} />
+              </ModalBody>
+              <ModalFooter>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+      <Modal isOpen={isMeasureModalOpen} onOpenChange={onMeasureModalOpenChange}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1" >Agregar Medidas</ModalHeader>
+              <ModalBody>
+                <AddMeasureModalContent id={id} />
               </ModalBody>
               <ModalFooter>
               </ModalFooter>

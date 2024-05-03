@@ -14,10 +14,8 @@ export default function Layout({
       <Sidebar
         title='Clientes'
         links={[
-          { title: 'Dashboard Clientes', path: '/clients' },
           { title: 'Administrar Clientes', path: '/clients/admin-clients' },
-          { title: 'Asignar Instructores', path: '/clients/trainer-asignment' },
-          { title: 'Asignar Clases', path: '/clients/classes-asignment' },
+          { title: 'Administrar Membresias', path: '/clients/membership-management' },
         ]}
       />
         {children}

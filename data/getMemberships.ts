@@ -19,6 +19,24 @@ export async function getMembership(id:String){
   return member;
 }
 
+export async function createMembership(membership:Membership){
+  const supabase = createClient();
+  const { data, error } = await supabase.from('memberships').insert([
+    {
+      name: membership.name,
+      description: membership.description,
+      price: membership.price,
+      benefits: membership.benefits,
+    }
+  ]);
+  if (error) {
+    console.log(error);
+    return error;
+  }
+  console.log(data);
+  return data;
+}
+
 export async function getMemberships(): Promise<Membership[]>{
   const supabase = createClient();
   const { data, error } = await supabase.from('memberships').select();
@@ -38,9 +56,9 @@ export async function getMemberships(): Promise<Membership[]>{
   return memberships;
 }
 
-export async function deleteMembership(id:String){
+export async function deleteMembership(id:number){
   const supabase = createClient();
-  const { data, error } = await supabase.from('membership').delete().eq('id', id);
+  const { data, error } = await supabase.from('memberships').delete().eq('id', id);
   if (error) {
     console.log(error);
     return error;
